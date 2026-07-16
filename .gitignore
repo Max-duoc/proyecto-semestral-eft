@@ -1,0 +1,17 @@
+# Node
+node_modules/
+front_despacho/node_modules/
+front_despacho/dist/
+
+# Java
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Entornos
+.env
+*.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml

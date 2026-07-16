@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: proyecto_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - proyecto_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  back-despachos:
+    build:
+      context: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+      dockerfile: Dockerfile
+    container_name: back_despachos
+    restart: unless-stopped
+    environment:
+      DB_ENDPOINT: db
+      DB_PORT: 3306
+      DB_NAME: ${DESPACHOS_DB_NAME}
+      DB_USERNAME: ${DESPACHOS_DB_USER}
+      DB_PASSWORD: ${DESPACHOS_DB_PASSWORD}
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - proyecto_network
+
+  back-ventas:
+    build:
+      context: ./back-Ventas_SpringBoot/Springboot-API-REST
+      dockerfile: Dockerfile
+    container_name: back_ventas
+    restart: unless-stopped
+    environment:
+      DB_ENDPOINT: db
+      DB_PORT: 3306
+      DB_NAME: ${VENTAS_DB_NAME}
+      DB_USERNAME: ${VENTAS_DB_USER}
+      DB_PASSWORD: ${VENTAS_DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - proyecto_network
+
+  front-despacho:
+    build:
+      context: ./front_despacho
+      dockerfile: Dockerfile
+    container_name: front_despacho
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - back-despachos
+      - back-ventas
+    networks:
+      - proyecto_network
+
+networks:
+  proyecto_network:
+    driver: bridge
+
+volumes:
+  db_data:
