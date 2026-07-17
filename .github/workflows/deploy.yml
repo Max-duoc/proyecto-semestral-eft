@@ -21,6 +21,21 @@ jobs:
     defaults:
       run:
         working-directory: back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+    services:
+      mysql-test:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: despachodb
+          MYSQL_USER: despachos_user
+          MYSQL_PASSWORD: despachos_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
@@ -33,6 +48,12 @@ jobs:
           cache: maven
 
       - name: Ejecutar tests
+        env:
+          DB_ENDPOINT: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: despachodb
+          DB_USERNAME: despachos_user
+          DB_PASSWORD: despachos_pass
         run: mvn test -B
 
       - name: Configurar credenciales AWS
@@ -64,6 +85,21 @@ jobs:
     defaults:
       run:
         working-directory: back-Ventas_SpringBoot/Springboot-API-REST
+    services:
+      mysql-test:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ventasdb
+          MYSQL_USER: ventas_user
+          MYSQL_PASSWORD: ventas_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
@@ -76,6 +112,12 @@ jobs:
           cache: maven
 
       - name: Ejecutar tests
+        env:
+          DB_ENDPOINT: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: ventasdb
+          DB_USERNAME: ventas_user
+          DB_PASSWORD: ventas_pass
         run: mvn test -B
 
       - name: Configurar credenciales AWS
